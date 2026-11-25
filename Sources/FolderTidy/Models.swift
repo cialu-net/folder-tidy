@@ -32,6 +32,8 @@ struct PlannedMove: Identifiable, Codable, Hashable {
     var destination: URL
     var category: FileCategory
     var selected = true
+    var fileNumber: UInt64? = nil
+    var deviceNumber: UInt64? = nil
 }
 
 struct OrganizationJournal: Identifiable, Codable {
@@ -40,4 +42,5 @@ struct OrganizationJournal: Identifiable, Codable {
     var root: URL
     var moves: [PlannedMove]
     var completed = false
+    var bookmark: Data? = nil
 }
