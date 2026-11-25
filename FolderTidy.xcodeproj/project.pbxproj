@@ -2,7 +2,7 @@
 { archiveVersion = 1; classes = {}; objectVersion = 56; objects = {
  A00000000000000000000001 = {isa = PBXProject; buildConfigurationList = A00000000000000000000002; compatibilityVersion = "Xcode 14.0"; developmentRegion = en; knownRegions = (en, it, fr, de, es, pt, ja, "zh-Hans", Base); mainGroup = A00000000000000000000003; productRefGroup = A00000000000000000000004; projectDirPath = ""; projectRoot = ""; targets = (A00000000000000000000005); };
  A00000000000000000000002 = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000006, A00000000000000000000007); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
- A00000000000000000000003 = {isa = PBXGroup; children = (A00000000000000000000008, A00000000000000000000009, A0000000000000000000000A, A0000000000000000000000B, A00000000000000000000004); sourceTree = "<group>"; };
+ A00000000000000000000003 = {isa = PBXGroup; children = (A00000000000000000000008, A00000000000000000000009, A0000000000000000000000A, A0000000000000000000000B, A00000000000000000000017, A00000000000000000000004); sourceTree = "<group>"; };
  A00000000000000000000004 = {isa = PBXGroup; children = (A0000000000000000000000C); name = Products; sourceTree = "<group>"; };
  A00000000000000000000005 = {isa = PBXNativeTarget; buildConfigurationList = A0000000000000000000000D; buildPhases = (A0000000000000000000000E, A0000000000000000000000F, A00000000000000000000010); buildRules = (); dependencies = (); name = FolderTidy; productName = FolderTidy; productReference = A0000000000000000000000C; productType = "com.apple.product-type.application"; };
  A00000000000000000000006 = {isa = XCBuildConfiguration; buildSettings = {MACOSX_DEPLOYMENT_TARGET = 14.0; SDKROOT = macosx; SWIFT_VERSION = 5.0;}; name = Debug; };
@@ -15,11 +15,21 @@
  A0000000000000000000000D = {isa = XCConfigurationList; buildConfigurations = (A00000000000000000000011, A00000000000000000000012); defaultConfigurationIsVisible = 0; defaultConfigurationName = Release; };
  A0000000000000000000000E = {isa = PBXSourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000013, A00000000000000000000014, A00000000000000000000015, A00000000000000000000016); runOnlyForDeploymentPostprocessing = 0; };
  A0000000000000000000000F = {isa = PBXFrameworksBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
- A00000000000000000000010 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (); runOnlyForDeploymentPostprocessing = 0; };
+ A00000000000000000000010 = {isa = PBXResourcesBuildPhase; buildActionMask = 2147483647; files = (A00000000000000000000018); runOnlyForDeploymentPostprocessing = 0; };
  A00000000000000000000011 = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = net.cialu.foldertidy; PRODUCT_NAME = "Folder Tidy"; GENERATE_INFOPLIST_FILE = YES; CODE_SIGN_ENTITLEMENTS = FolderTidy.entitlements; ENABLE_APP_SANDBOX = YES; CODE_SIGN_STYLE = Automatic; SWIFT_VERSION = 5.0; }; name = Debug; };
  A00000000000000000000012 = {isa = XCBuildConfiguration; buildSettings = {PRODUCT_BUNDLE_IDENTIFIER = net.cialu.foldertidy; PRODUCT_NAME = "Folder Tidy"; GENERATE_INFOPLIST_FILE = YES; CODE_SIGN_ENTITLEMENTS = FolderTidy.entitlements; ENABLE_APP_SANDBOX = YES; CODE_SIGN_STYLE = Automatic; SWIFT_VERSION = 5.0; }; name = Release; };
  A00000000000000000000013 = {isa = PBXBuildFile; fileRef = A00000000000000000000008; };
  A00000000000000000000014 = {isa = PBXBuildFile; fileRef = A00000000000000000000009; };
  A00000000000000000000015 = {isa = PBXBuildFile; fileRef = A0000000000000000000000A; };
  A00000000000000000000016 = {isa = PBXBuildFile; fileRef = A0000000000000000000000B; };
+ A00000000000000000000017 = {isa = PBXVariantGroup; children = (A00000000000000000000019,A0000000000000000000001A,A0000000000000000000001B,A0000000000000000000001C,A0000000000000000000001D,A0000000000000000000001E,A0000000000000000000001F,A00000000000000000000020); name = Localizable.strings; sourceTree = "<group>"; };
+ A00000000000000000000018 = {isa = PBXBuildFile; fileRef = A00000000000000000000017; };
+ A00000000000000000000019 = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = Sources/FolderTidy/Resources/en.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001A = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = Sources/FolderTidy/Resources/it.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001B = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = Sources/FolderTidy/Resources/fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001C = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = Sources/FolderTidy/Resources/de.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001D = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = Sources/FolderTidy/Resources/es.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001E = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pt; path = Sources/FolderTidy/Resources/pt.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A0000000000000000000001F = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = Sources/FolderTidy/Resources/ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+ A00000000000000000000020 = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "Sources/FolderTidy/Resources/zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
 }; rootObject = A00000000000000000000001; }
