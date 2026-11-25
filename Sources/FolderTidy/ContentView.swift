@@ -2,25 +2,34 @@ import SwiftUI
 import AppKit
 import QuickLookUI
 import QuickLook
+import UniformTypeIdentifiers
 
 @MainActor
 final class OrganizerViewModel: ObservableObject {
     @Published var folder: URL?
     @Published var moves: [PlannedMove] = []
     @Published var query = ""
-    @Published var groupByDate = false
+    @Published var groupByDate = UserDefaults.standard.bool(forKey: "groupByDate") { didSet { UserDefaults.standard.set(groupByDate, forKey: "groupByDate") } }
     @Published var status = "Choose a folder to begin."
     @Published var journals: [OrganizationJournal]
     @Published var selectedMoveID: UUID?
+    @Published var busy = false
     var selectedForQuickLook: URL? { moves.first { $0.id == selectedMoveID }?.source }
     let rules = RuleStore()
     private let organizer = FolderOrganizer(), journalStore = JournalStore()
     init() { journals = journalStore.load() }
     var filteredMoves: [PlannedMove] { query.isEmpty ? moves : moves.filter { $0.source.lastPathComponent.localizedCaseInsensitiveContains(query) || $0.category.title.localizedCaseInsensitiveContains(query) } }
     func chooseFolder() { let panel = NSOpenPanel(); panel.canChooseFiles = false; panel.canChooseDirectories = true; panel.allowsMultipleSelection = false; if panel.runModal() == .OK, let url = panel.url { folder = url; analyze() } }
-    func analyze() { guard let folder else { return }; Task { do { moves = try await organizer.preview(folder: folder, rules: rules.rules, groupByDate: groupByDate); status = "\(moves.count) files ready to review." } catch { status = error.localizedDescription } } }
-    func organize() { Task { do { let journal = try await organizer.organize(moves); journals = journalStore.load(); status = "Organized \(journal.moves.count) files. You can undo this action."; moves = [] } catch { journals = journalStore.load(); status = error.localizedDescription + " — use Undo to recover any moved files." } } }
-    func undoLatest() { guard let journal = journals.first else { return }; Task { do { try await organizer.undo(journal); var updated = try journalStore.loadChecked(); updated.removeAll { $0.id == journal.id }; try journalStore.persist(updated); journals = updated; status = "Organization undone." } catch { status = error.localizedDescription } } }
+    func acceptDroppedFolder(_ providers: [NSItemProvider]) -> Bool {
+        guard let provider = providers.first(where: { $0.hasItemConformingToTypeIdentifier(UTType.fileURL.identifier) }) else { return false }
+        provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { item, _ in
+            guard let data = item as? Data, let url = URL(dataRepresentation: data, relativeTo: nil) else { return }
+            DispatchQueue.main.async { var isDirectory: ObjCBool = false; if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue { self.folder = url; self.analyze() } }
+        }; return true
+    }
+    func analyze() { guard let folder, !busy else { return }; busy = true; Task { defer { busy = false }; do { moves = try await organizer.preview(folder: folder, rules: rules.rules, groupByDate: groupByDate); status = "\(moves.count) files ready to review." } catch { moves = []; status = error.localizedDescription } } }
+    func organize() { guard !busy else { return }; busy = true; Task { defer { busy = false }; do { let journal = try await organizer.organize(moves); journals = journalStore.load(); status = "Organized \(journal.moves.count) files. You can undo this action."; moves = [] } catch { journals = journalStore.load(); status = error.localizedDescription + " — use Undo to recover any moved files." } } }
+    func undoLatest() { guard let journal = journals.first, !busy else { return }; busy = true; Task { defer { busy = false }; do { try await organizer.undo(journal); var updated = try journalStore.loadChecked(); updated.removeAll { $0.id == journal.id }; try journalStore.persist(updated); journals = updated; status = "Organization undone." } catch { status = error.localizedDescription } } }
 }
 
 struct ContentView: View {
@@ -46,8 +55,9 @@ struct ContentView: View {
                 }
                 Divider(); HStack { Text(model.status).foregroundStyle(.secondary); Spacer(); Button("Quick Look") { previewURL = model.selectedForQuickLook }.disabled(model.selectedForQuickLook == nil); Button("Organize Now") { confirmOrganize = true }.buttonStyle(.borderedProminent).disabled(model.moves.filter(\.selected).isEmpty) }.padding()
             }.frame(minWidth: 820, minHeight: 520)
-        }.sheet(isPresented: $showRules, onDismiss: { model.analyze() }) { RulesView(store: model.rules) }
+        }.disabled(model.busy).onDrop(of: [UTType.fileURL], isTargeted: nil, perform: model.acceptDroppedFolder).sheet(isPresented: $showRules, onDismiss: { model.analyze() }) { RulesView(store: model.rules) }
             .quickLookPreview($previewURL)
+            .onKeyPress(.space) { guard let url = model.selectedForQuickLook else { return .ignored }; previewURL = url; return .handled }
             .confirmationDialog("Move the selected files to their displayed destinations?", isPresented: $confirmOrganize) { Button("Organize Now") { model.organize() }; Button("Cancel", role: .cancel) {} }
     }
 }

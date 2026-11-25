@@ -2,6 +2,17 @@ import XCTest
 @testable import FolderTidy
 
 final class FolderTidyTests: XCTestCase {
+    func testPreviewFindsAvailableCollisionName() async throws {
+        let root = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let destination = root.appending(path: "Documents")
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
+        try Data("new".utf8).write(to: root.appending(path: "report.pdf"))
+        try Data("existing".utf8).write(to: destination.appending(path: "report.pdf"))
+        try Data("existing two".utf8).write(to: destination.appending(path: "report 2.pdf"))
+        let plan = try await FolderOrganizer().preview(folder: root, rules: [], groupByDate: false)
+        XCTAssertEqual(plan.first?.destination.lastPathComponent, "report 3.pdf")
+    }
     func testRecoveryAfterInterruptedMove() async throws {
         let root = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }

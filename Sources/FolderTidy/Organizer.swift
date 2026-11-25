@@ -105,8 +105,14 @@ actor FolderOrganizer {
     }
 
     private func uniqueDestination(in folder: URL, filename: String) -> URL {
+        let original = URL(fileURLWithPath: filename)
+        let stem = original.deletingPathExtension().lastPathComponent
+        let ext = original.pathExtension
         var candidate = folder.appending(path: filename); var n = 2
-        while fm.fileExists(atPath: candidate.path) { candidate = folder.appending(path: "\(candidate.deletingPathExtension().lastPathComponent) \(n).\(candidate.pathExtension)"); n += 1 }
+        while fm.fileExists(atPath: candidate.path) {
+            let name = ext.isEmpty ? "\(stem) \(n)" : "\(stem) \(n).\(ext)"
+            candidate = folder.appending(path: name); n += 1
+        }
         return candidate
     }
 }
