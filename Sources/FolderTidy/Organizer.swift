@@ -4,12 +4,12 @@ import Combine
 enum OrganizerError: LocalizedError {
     case invalidFolder, invalidDestination, collision(URL), inaccessible(URL), pendingRecovery, fileChanged(URL)
     var errorDescription: String? {
-        switch self { case .invalidFolder: return "Choose a readable folder."
-        case .pendingRecovery: return "Recover the interrupted operation before organizing more files."
-        case .fileChanged(let url): return "The file has changed since the preview: \(url.lastPathComponent)."
-        case .invalidDestination: return "The destination must be a safe folder name inside the selected folder."
-        case .collision(let url): return "A file already exists at \(url.lastPathComponent)."
-        case .inaccessible(let url): return "Cannot access \(url.lastPathComponent)." }
+        switch self { case .invalidFolder: return localized("Choose a readable folder.")
+        case .pendingRecovery: return localized("Recover the interrupted operation before organizing more files.")
+        case .fileChanged(let url): return String(format: localized("The file has changed since the preview: %@."), url.lastPathComponent)
+        case .invalidDestination: return localized("The destination must be a safe folder name inside the selected folder.")
+        case .collision(let url): return String(format: localized("A file already exists at %@."), url.lastPathComponent)
+        case .inaccessible(let url): return String(format: localized("Cannot access %@."), url.lastPathComponent) }
     }
 }
 

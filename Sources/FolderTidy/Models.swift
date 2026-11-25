@@ -1,5 +1,12 @@
 import Foundation
 
+func localized(_ key: String) -> String {
+    let language = UserDefaults.standard.string(forKey: "language") ?? "system"
+    let base = Bundle.main
+    let bundle = language == "system" ? base : (base.path(forResource: language, ofType: "lproj").flatMap(Bundle.init(path:)) ?? base)
+    return bundle.localizedString(forKey: key, value: key, table: nil)
+}
+
 enum FileCategory: String, CaseIterable, Codable, Identifiable {
     case images, documents, audio, video, archives, applications, other
     var id: String { rawValue }

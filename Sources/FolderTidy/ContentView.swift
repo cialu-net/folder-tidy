@@ -27,8 +27,8 @@ final class OrganizerViewModel: ObservableObject {
             DispatchQueue.main.async { var isDirectory: ObjCBool = false; if FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory), isDirectory.boolValue { self.folder = url; self.analyze() } }
         }; return true
     }
-    func analyze() { guard let folder, !busy else { return }; busy = true; Task { defer { busy = false }; do { moves = try await organizer.preview(folder: folder, rules: rules.rules, groupByDate: groupByDate); status = "\(moves.count) files ready to review." } catch { moves = []; status = error.localizedDescription } } }
-    func organize() { guard !busy else { return }; busy = true; Task { defer { busy = false }; do { let journal = try await organizer.organize(moves); journals = journalStore.load(); status = "Organized \(journal.moves.count) files. You can undo this action."; moves = [] } catch { journals = journalStore.load(); status = error.localizedDescription + " — use Undo to recover any moved files." } } }
+    func analyze() { guard let folder, !busy else { return }; busy = true; Task { defer { busy = false }; do { moves = try await organizer.preview(folder: folder, rules: rules.rules, groupByDate: groupByDate); status = String(format: localized("%d files ready to review."), moves.count) } catch { moves = []; status = error.localizedDescription } } }
+    func organize() { guard !busy else { return }; busy = true; Task { defer { busy = false }; do { let journal = try await organizer.organize(moves); journals = journalStore.load(); status = String(format: localized("Organized %d files. You can undo this action."), journal.moves.count); moves = [] } catch { journals = journalStore.load(); status = error.localizedDescription + " — " + localized("Use Undo to recover any moved files.") } } }
     func undoLatest() { guard let journal = journals.first, !busy else { return }; busy = true; Task { defer { busy = false }; do { try await organizer.undo(journal); var updated = try journalStore.loadChecked(); updated.removeAll { $0.id == journal.id }; try journalStore.persist(updated); journals = updated; status = "Organization undone." } catch { status = error.localizedDescription } } }
 }
 
@@ -53,7 +53,7 @@ struct ContentView: View {
                     TableColumn("Destination") { move in TextField("Destination", text: Binding(get: { move.destination.deletingLastPathComponent().lastPathComponent }, set: { value in if let i = model.moves.firstIndex(where: { $0.id == move.id }), let root = model.folder { model.moves[i].destination = root.appending(path: value).appending(path: move.source.lastPathComponent) } })) }
                     TableColumn("Category") { move in Text(move.category.title) }
                 }
-                Divider(); HStack { Text(model.status).foregroundStyle(.secondary); Spacer(); Button("Quick Look") { previewURL = model.selectedForQuickLook }.disabled(model.selectedForQuickLook == nil); Button("Organize Now") { confirmOrganize = true }.buttonStyle(.borderedProminent).disabled(model.moves.filter(\.selected).isEmpty) }.padding()
+                Divider(); HStack { Text(model.status == "Choose a folder to begin." || model.status == "Organization undone." ? localized(model.status) : model.status).foregroundStyle(.secondary); Spacer(); Button("Quick Look") { previewURL = model.selectedForQuickLook }.disabled(model.selectedForQuickLook == nil); Button("Organize Now") { confirmOrganize = true }.buttonStyle(.borderedProminent).disabled(model.moves.filter(\.selected).isEmpty) }.padding()
             }.frame(minWidth: 820, minHeight: 520)
         }.disabled(model.busy).onDrop(of: [UTType.fileURL], isTargeted: nil, perform: model.acceptDroppedFolder).sheet(isPresented: $showRules, onDismiss: { model.analyze() }) { RulesView(store: model.rules) }
             .quickLookPreview($previewURL)
